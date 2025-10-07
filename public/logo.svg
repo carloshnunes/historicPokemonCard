@@ -1,0 +1,16 @@
+<!-- Logo do site - pode ser substituído por um logo mais elaborado -->
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pokéball -->
+  <circle cx="30" cy="30" r="25" fill="#FF0000" stroke="#000" stroke-width="3"/>
+  <circle cx="30" cy="30" r="15" fill="#FFF" stroke="#000" stroke-width="2"/>
+  <circle cx="30" cy="30" r="6" fill="#000"/>
+  <line x1="5" y1="30" x2="55" y2="30" stroke="#000" stroke-width="3"/>
+  
+  <!-- Texto -->
+  <text x="70" y="25" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#3B82F6">
+    Histórico
+  </text>
+  <text x="70" y="45" font-family="Arial, sans-serif" font-size="14" fill="#6B7280">
+    Pokémon
+  </text>
+</svg>
