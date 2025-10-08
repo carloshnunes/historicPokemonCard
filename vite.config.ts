@@ -22,6 +22,8 @@ export default defineConfig({
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
             console.log('Sending Request to the Target:', req.method, req.url);
+            // Adiciona a API key oficial
+            proxyReq.setHeader('X-Api-Key', 'c2a8a24b-0d4f-4afd-b985-4a91788092bc');
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);

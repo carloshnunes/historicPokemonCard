@@ -1,66 +1,61 @@
 import { useState } from 'react'
 import { Search, Filter, Loader2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useTCGdxSearch, formatPrice } from '@/hooks/useTCGdxCards'
+import { useTCGdexSearchCards } from '@/hooks/useTCGdexCards'
 
 export default function CardSearch() {
   const [searchTerm, setSearchTerm] = useState('')
-  const { cards, isLoading, error, loadTime } = useTCGdxSearch(searchTerm, 20)
+  const { cards, isLoading, error, loadTime } = useTCGdexSearchCards(searchTerm, 20)
 
-  const CardItem = ({ card }: { card: any }) => (
-    <Link 
-      to={`/card/${card.id}`}
-      className="block group"
-    >
-      <div className="pokemon-card p-4 h-full hover:shadow-lg transition-shadow duration-200">
-        <div className="aspect-[3/4] bg-gray-100 rounded-lg mb-3 overflow-hidden">
-          <img
-            src={card.images?.large || card.images?.small || 'https://via.placeholder.com/300x400?text=Pokemon'}
-            alt={card.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.src = 'https://via.placeholder.com/300x400?text=Pokemon'
-            }}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <h3 className="font-semibold text-gray-900 truncate">
-            {card.name}
-          </h3>
+  const CardItem = ({ card }: { card: any }) => {
+    // TCGdex image format: card.image base URL + /high.webp
+    const imageUrl = card.image ? `${card.image}/high.webp` : 'https://via.placeholder.com/300x400?text=Pokemon'
+    
+    return (
+      <Link 
+        to={`/card/${card.id}`}
+        className="block group"
+      >
+        <div className="pokemon-card p-4 h-full hover:shadow-lg transition-shadow duration-200">
+          <div className="aspect-[3/4] bg-gray-100 rounded-lg mb-3 overflow-hidden">
+            <img
+              src={imageUrl}
+              alt={card.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.src = 'https://via.placeholder.com/300x400?text=Pokemon'
+              }}
+            />
+          </div>
           
-          <div className="text-sm text-gray-600">
-            <p className="truncate">{card.set?.name || 'Set desconhecido'}</p>
-            <p className="font-medium text-purple-600">{card.rarity || 'Raridade desconhecida'}</p>
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            {card.hp && (
-              <span className="text-gray-500">HP: {card.hp}</span>
-            )}
-            {card.types && card.types.length > 0 && (
-              <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">
-                {card.types[0]}
-              </span>
-            )}
-          </div>
-
-          {card.pricing && (
-            <div className="text-sm font-semibold text-green-600">
-              {(() => {
-                const price = formatPrice(card.pricing, 'normal')
-                if (price) {
-                  return `${price.currency === 'USD' ? '$' : '€'}${price.market?.toFixed(2) || 'N/A'}`
-                }
-                return 'Preço N/A'
-              })()}
+          <div className="space-y-2">
+            <h3 className="font-semibold text-gray-900 truncate">
+              {card.name}
+            </h3>
+            
+            <div className="text-sm text-gray-600">
+              <p className="truncate">ID: {card.localId || card.id}</p>
+              {card.rarity && (
+                <p className="font-medium text-purple-600">{card.rarity}</p>
+              )}
             </div>
-          )}
+
+            <div className="flex items-center justify-between text-sm">
+              {card.hp && (
+                <span className="text-red-500">❤️ {card.hp}</span>
+              )}
+              {card.types && card.types.length > 0 && (
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                  {card.types[0]}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </Link>
-  )
+      </Link>
+    )
+  }
   return (
     <div className="space-y-6">
       <div>

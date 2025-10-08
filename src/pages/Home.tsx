@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { TrendingUp, Search, BarChart3 } from 'lucide-react'
-import RareCardsCarousel from '@/components/RareCardsCarousel'
+import SetCarousel from '@/components/SetCarousel'
 
 export default function Home() {
   return (
@@ -28,8 +28,34 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Cartas Ultra Raras */}
-      <RareCardsCarousel />
+      {/* Carrosséis por Set */}
+      <SetCarousel 
+        setId="sv01" 
+        setName="Scarlet & Violet" 
+        limit={12}
+        borderColor="border-purple-400"
+      />
+      
+      <SetCarousel 
+        setId="swsh9" 
+        setName="Brilliant Stars" 
+        limit={12}
+        borderColor="border-yellow-400"
+      />
+      
+      <SetCarousel 
+        setId="base1" 
+        setName="Base Set (Clássico)" 
+        limit={12}
+        borderColor="border-red-400"
+      />
+      
+      <SetCarousel 
+        setId="swsh1" 
+        setName="Sword & Shield" 
+        limit={12}
+        borderColor="border-blue-400"
+      />
 
       {/* Features */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

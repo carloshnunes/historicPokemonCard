@@ -1,10 +1,10 @@
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, TrendingUp, TrendingDown, Minus, ExternalLink } from 'lucide-react'
-import { useTCGdxCardById, formatPrice } from '@/hooks/useTCGdxCards'
+import { useTCGdexCardById } from '@/hooks/useTCGdexCards'
 
 export default function CardDetail() {
   const { id } = useParams()
-  const { card, isLoading, error, loadTime } = useTCGdxCardById(id || '')
+  const { card, isLoading, error, loadTime } = useTCGdexCardById(id || '')
 
   if (isLoading) {
     return (
@@ -83,14 +83,18 @@ export default function CardDetail() {
     )
   }
 
-  // Dados de preço (mock por enquanto, pois a API não tem histórico)
-  const currentPrice = card.tcgplayer?.prices?.holofoil?.market || 
-                      card.tcgplayer?.prices?.holofoil?.mid || 
-                      card.tcgplayer?.prices?.holofoil?.low || 
-                      0
+  // Dados de preço do TCGdex
+  const tcgplayerPrice = card.pricing?.tcgplayer?.holofoil?.marketPrice || card.pricing?.tcgplayer?.normal?.marketPrice
+  const cardmarketPrice = card.pricing?.cardmarket?.avg
+  
+  const currentPrice = tcgplayerPrice || cardmarketPrice || 0
+  const priceCurrency = tcgplayerPrice ? 'USD' : 'EUR'
 
   const priceChange = 0 // Mock - seria calculado com histórico real
   const priceChangePercent = 0 // Mock
+  
+  // URL da imagem do TCGdex
+  const imageUrl = card.image ? `${card.image}/high.webp` : null
 
   return (
     <div className="space-y-6">
@@ -107,9 +111,9 @@ export default function CardDetail() {
         {/* Card Image */}
         <div className="pokemon-card p-6">
           <div className="aspect-[3/4] bg-gray-200 rounded-lg overflow-hidden">
-            {card.images?.large ? (
+            {imageUrl ? (
               <img 
-                src={card.images.large} 
+                src={imageUrl} 
                 alt={card.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -142,14 +146,30 @@ export default function CardDetail() {
               <p className="text-gray-600">
                 <span className="font-medium">HP:</span> {card.hp || 'N/A'}
               </p>
-              {card.supertype && (
+              {card.category && (
                 <p className="text-gray-600">
-                  <span className="font-medium">Super Tipo:</span> {card.supertype}
+                  <span className="font-medium">Categoria:</span> {card.category}
                 </p>
               )}
-              {card.subtypes && card.subtypes.length > 0 && (
+              {card.stage && (
                 <p className="text-gray-600">
-                  <span className="font-medium">Sub Tipos:</span> {card.subtypes.join(', ')}
+                  <span className="font-medium">Estágio:</span> {card.stage}
+                </p>
+              )}
+              <p className="text-gray-600">
+                <span className="font-medium">Número:</span> {card.localId || 'N/A'}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-medium">Artista:</span> {card.illustrator || 'N/A'}
+              </p>
+              {card.dexId && card.dexId.length > 0 && (
+                <p className="text-gray-600">
+                  <span className="font-medium">Pokédex:</span> #{card.dexId[0]}
+                </p>
+              )}
+              {card.regulationMark && (
+                <p className="text-gray-600">
+                  <span className="font-medium">Marca de Regulação:</span> {card.regulationMark}
                 </p>
               )}
             </div>
@@ -161,7 +181,7 @@ export default function CardDetail() {
             {currentPrice > 0 ? (
               <div className="flex items-baseline space-x-2">
                 <span className="text-3xl font-bold text-gray-900">
-                  ${currentPrice.toFixed(2)}
+                  {priceCurrency === 'USD' ? '$' : '€'}{currentPrice.toFixed(2)}
                 </span>
                 <div className={`flex items-center space-x-1 ${
                   priceChange > 0 ? 'price-trend-up' : 
@@ -171,31 +191,52 @@ export default function CardDetail() {
                    priceChange < 0 ? <TrendingDown className="h-4 w-4" /> :
                    <Minus className="h-4 w-4" />}
                   <span>
-                    {priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)} ({priceChangePercent}%)
+                    {priceChange > 0 ? '+' : ''}{priceCurrency === 'USD' ? '$' : '€'}{priceChange.toFixed(2)} ({priceChangePercent}%)
                   </span>
                 </div>
               </div>
             ) : (
               <p className="text-gray-500">Preço não disponível</p>
             )}
-            <p className="text-sm text-gray-500 mt-2">
-              Última atualização: {lastUpdate ? lastUpdate.toLocaleTimeString('pt-BR') : 'Dados pré-carregados'}
-              {isUpdating && <span className="text-blue-600 ml-2">(Atualizando...)</span>}
-              {error && <span className="text-red-600 ml-2">(Erro na atualização)</span>}
-            </p>
+            <div className="mt-4 space-y-2">
+              <p className="text-sm text-gray-500">
+                <span className="font-medium">Fonte:</span> {tcgplayerPrice ? 'TCGPlayer' : cardmarketPrice ? 'Cardmarket' : 'N/A'}
+              </p>
+              {card.pricing?.tcgplayer?.updated && (
+                <p className="text-sm text-gray-500">
+                  <span className="font-medium">Última atualização:</span> {new Date(card.pricing.tcgplayer.updated).toLocaleDateString('pt-BR')}
+                </p>
+              )}
+              {card.pricing?.cardmarket?.updated && !tcgplayerPrice && (
+                <p className="text-sm text-gray-500">
+                  <span className="font-medium">Última atualização:</span> {new Date(card.pricing.cardmarket.updated).toLocaleDateString('pt-BR')}
+                </p>
+              )}
+            </div>
             
-            {/* Links para compra */}
-            {card.tcgplayer?.url && (
-              <div className="mt-4">
-                <a 
-                  href={card.tcgplayer.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="btn-primary inline-flex items-center space-x-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  <span>Ver no TCGPlayer</span>
-                </a>
+            {/* Preços adicionais do TCGdex */}
+            {card.pricing && (
+              <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                {card.pricing.tcgplayer?.holofoil?.lowPrice && (
+                  <p className="text-gray-600">
+                    <span className="font-medium">Menor preço:</span> ${card.pricing.tcgplayer.holofoil.lowPrice}
+                  </p>
+                )}
+                {card.pricing.tcgplayer?.holofoil?.highPrice && (
+                  <p className="text-gray-600">
+                    <span className="font-medium">Maior preço:</span> ${card.pricing.tcgplayer.holofoil.highPrice}
+                  </p>
+                )}
+                {card.pricing.cardmarket?.low && (
+                  <p className="text-gray-600">
+                    <span className="font-medium">Menor preço:</span> €{card.pricing.cardmarket.low}
+                  </p>
+                )}
+                {card.pricing.cardmarket?.trend && (
+                  <p className="text-gray-600">
+                    <span className="font-medium">Tendência:</span> €{card.pricing.cardmarket.trend}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -223,8 +264,8 @@ export default function CardDetail() {
                 <div className="mt-2 space-y-1 text-sm">
                   <p><span className="font-medium">Custo:</span> {attack.cost?.join(' ') || 'N/A'}</p>
                   <p><span className="font-medium">Dano:</span> {attack.damage || 'N/A'}</p>
-                  {attack.text && (
-                    <p><span className="font-medium">Descrição:</span> {attack.text}</p>
+                  {attack.effect && (
+                    <p className="text-gray-600"><span className="font-medium">Efeito:</span> {attack.effect}</p>
                   )}
                 </div>
               </div>
