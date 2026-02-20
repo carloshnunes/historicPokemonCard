@@ -126,6 +126,47 @@ export function useTCGdexCardById(cardId: string) {
   }
 }
 
+// Hook para buscar múltiplas cartas por ID (para a página de coleção)
+export function useTCGdexCardsByIds(cardIds: string[]) {
+  const [cards, setCards] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!cardIds.length) {
+      setCards([])
+      setIsLoading(false)
+      return
+    }
+
+    const fetchCards = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        
+        const promises = cardIds.map(id =>
+          fetch(`https://api.tcgdex.net/v2/en/cards/${id}`)
+            .then(res => res.ok ? res.json() : null)
+            .catch(() => null)
+        )
+        
+        const results = await Promise.all(promises)
+        setCards(results.filter(Boolean))
+      } catch (err) {
+        console.error('❌ Erro ao buscar cartas:', err)
+        setError(err instanceof Error ? err.message : 'Erro desconhecido')
+        setCards([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCards()
+  }, [cardIds.join(',')])
+
+  return { cards, isLoading, error }
+}
+
 // Hook para buscar cartas por set com detalhes completos
 export function useTCGdexCardsBySet(setId: string, limit: number = 12) {
   const [cards, setCards] = useState<any[]>([])
@@ -260,4 +301,3 @@ export function useTCGdexSearchCards(query: string, limit: number = 20) {
     loadTime
   }
 }
-

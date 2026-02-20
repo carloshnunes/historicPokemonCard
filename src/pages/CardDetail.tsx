@@ -1,34 +1,33 @@
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, TrendingUp, TrendingDown, Minus, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Heart } from 'lucide-react'
 import { useTCGdexCardById } from '@/hooks/useTCGdexCards'
+import { useCollection } from '@/contexts/CollectionContext'
+import PriceDisplay from '@/components/PriceDisplay'
 
 export default function CardDetail() {
   const { id } = useParams()
-  const { card, isLoading, error, loadTime } = useTCGdexCardById(id || '')
+  const { card, isLoading, error } = useTCGdexCardById(id || '')
+  const { addCard, removeCard, isInCollection } = useCollection()
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <button 
-          onClick={() => window.history.back()}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-        >
-          <ArrowLeft className="h-5 w-5" />
+      <div className="space-y-4">
+        <button onClick={() => window.history.back()} className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
+          <ArrowLeft className="h-4 w-4" />
           <span>Voltar</span>
         </button>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="pokemon-card p-6">
-            <div className="aspect-[3/4] bg-gray-200 rounded-lg animate-pulse"></div>
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+          <div className="lg:w-[280px] lg:flex-shrink-0">
+            <div className="pokemon-card overflow-hidden">
+              <div className="aspect-[3/4] bg-gray-200 animate-pulse" />
+            </div>
           </div>
-          <div className="space-y-6">
-            <div className="pokemon-card p-6">
-              <div className="h-8 bg-gray-200 rounded animate-pulse mb-4"></div>
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
-              </div>
+          <div className="flex-1 pokemon-card p-4">
+            <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2 mb-3" />
+            <div className="space-y-2">
+              <div className="h-3 bg-gray-200 rounded animate-pulse" />
+              <div className="h-3 bg-gray-200 rounded animate-pulse" />
+              <div className="h-3 bg-gray-200 rounded animate-pulse" />
             </div>
           </div>
         </div>
@@ -38,24 +37,15 @@ export default function CardDetail() {
 
   if (error) {
     return (
-      <div className="space-y-6">
-        <button 
-          onClick={() => window.history.back()}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-        >
-          <ArrowLeft className="h-5 w-5" />
+      <div className="space-y-4">
+        <button onClick={() => window.history.back()} className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
+          <ArrowLeft className="h-4 w-4" />
           <span>Voltar</span>
         </button>
-        
         <div className="pokemon-card p-6 text-center">
-          <h2 className="text-xl font-semibold text-red-600 mb-2">Erro ao carregar carta</h2>
+          <h2 className="text-base font-semibold text-red-600 mb-2">Erro ao carregar carta</h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="btn-primary"
-          >
-            Tentar Novamente
-          </button>
+          <button onClick={() => window.location.reload()} className="btn-primary">Tentar Novamente</button>
         </div>
       </div>
     )
@@ -63,245 +53,155 @@ export default function CardDetail() {
 
   if (!card) {
     return (
-      <div className="space-y-6">
-        <button 
-          onClick={() => window.history.back()}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-        >
-          <ArrowLeft className="h-5 w-5" />
+      <div className="space-y-4">
+        <button onClick={() => window.history.back()} className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
+          <ArrowLeft className="h-4 w-4" />
           <span>Voltar</span>
         </button>
-        
         <div className="pokemon-card p-6 text-center">
-          <h2 className="text-xl font-semibold text-gray-600 mb-2">Carta não encontrada</h2>
+          <h2 className="text-base font-semibold text-gray-600 mb-2">Carta não encontrada</h2>
           <p className="text-gray-500 mb-4">A carta com ID "{id}" não foi encontrada.</p>
-          <Link to="/" className="btn-primary">
-            Voltar ao Início
-          </Link>
+          <Link to="/" className="btn-primary">Voltar ao Início</Link>
         </div>
       </div>
     )
   }
 
-  // Dados de preço do TCGdex
   const tcgplayerPrice = card.pricing?.tcgplayer?.holofoil?.marketPrice || card.pricing?.tcgplayer?.normal?.marketPrice
   const cardmarketPrice = card.pricing?.cardmarket?.avg
-  
   const currentPrice = tcgplayerPrice || cardmarketPrice || 0
   const priceCurrency = tcgplayerPrice ? 'USD' : 'EUR'
-
-  const priceChange = 0 // Mock - seria calculado com histórico real
-  const priceChangePercent = 0 // Mock
-  
-  // URL da imagem do TCGdex
   const imageUrl = card.image ? `${card.image}/high.webp` : null
 
   return (
-    <div className="space-y-6">
-      {/* Back Button */}
-      <button 
-        onClick={() => window.history.back()}
-        className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
-      >
-        <ArrowLeft className="h-5 w-5" />
+    <div className="space-y-5">
+      <button onClick={() => window.history.back()} className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
+        <ArrowLeft className="h-4 w-4" />
         <span>Voltar</span>
       </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Card Image */}
-        <div className="pokemon-card p-6">
-          <div className="aspect-[3/4] bg-gray-200 rounded-lg overflow-hidden">
-            {imageUrl ? (
-              <img 
-                src={imageUrl} 
-                alt={card.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = 'https://via.placeholder.com/300x400?text=Pokemon'
-                }}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-500">
-                Imagem não disponível
-              </div>
-            )}
+      {/* Linha 1: Carta à esquerda | Card info+preço + botões à direita (mesma largura) */}
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start">
+        {/* Esquerda: Carta */}
+        <div className="lg:w-[280px] lg:flex-shrink-0">
+          <div className="pokemon-card overflow-hidden">
+            <div className="aspect-[3/4] bg-gray-100 overflow-hidden">
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={card.name}
+                  className="block w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300x400?text=Pokemon'
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">Imagem não disponível</div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Card Info */}
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{card.name}</h1>
-            <div className="mt-2 space-y-1">
-              <p className="text-gray-600">
-                <span className="font-medium">Set:</span> {card.set?.name || 'N/A'}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">Raridade:</span> {card.rarity || 'N/A'}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">Tipo:</span> {card.types?.join(', ') || 'N/A'}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">HP:</span> {card.hp || 'N/A'}
-              </p>
-              {card.category && (
-                <p className="text-gray-600">
-                  <span className="font-medium">Categoria:</span> {card.category}
-                </p>
-              )}
-              {card.stage && (
-                <p className="text-gray-600">
-                  <span className="font-medium">Estágio:</span> {card.stage}
-                </p>
-              )}
-              <p className="text-gray-600">
-                <span className="font-medium">Número:</span> {card.localId || 'N/A'}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">Artista:</span> {card.illustrator || 'N/A'}
-              </p>
-              {card.dexId && card.dexId.length > 0 && (
-                <p className="text-gray-600">
-                  <span className="font-medium">Pokédex:</span> #{card.dexId[0]}
-                </p>
-              )}
-              {card.regulationMark && (
-                <p className="text-gray-600">
-                  <span className="font-medium">Marca de Regulação:</span> {card.regulationMark}
-                </p>
-              )}
+        {/* Direita: Card info+preço (altura natural) + botões - mesma largura */}
+        <div className="flex flex-col gap-4 lg:flex-1 lg:min-w-0">
+          {/* Card - infos à esquerda, preço à direita - mais compacto e moderno */}
+          <div className="pokemon-card p-5">
+            <h1 className="text-lg font-bold text-gray-900 mb-4">{card.name}</h1>
+            <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
+                <div><span className="text-gray-400">Set</span><p className="font-medium text-gray-900">{card.set?.name || '—'}</p></div>
+                <div><span className="text-gray-400">Raridade</span><p className="font-medium text-gray-900">{card.rarity || '—'}</p></div>
+                <div><span className="text-gray-400">Tipo</span><p className="font-medium text-gray-900">{card.types?.join(', ') || '—'}</p></div>
+                <div><span className="text-gray-400">HP</span><p className="font-medium text-gray-900">{card.hp || '—'}</p></div>
+                {card.category && <div><span className="text-gray-400">Categoria</span><p className="font-medium text-gray-900">{card.category}</p></div>}
+                {card.stage && <div><span className="text-gray-400">Estágio</span><p className="font-medium text-gray-900">{card.stage}</p></div>}
+                <div><span className="text-gray-400">Número</span><p className="font-medium text-gray-900">{card.localId || '—'}</p></div>
+                <div><span className="text-gray-400">Artista</span><p className="font-medium text-gray-900">{card.illustrator || '—'}</p></div>
+                {card.dexId?.[0] && <div><span className="text-gray-400">Pokédex</span><p className="font-medium text-gray-900">#{card.dexId[0]}</p></div>}
+                {card.regulationMark && <div><span className="text-gray-400">Regulação</span><p className="font-medium text-gray-900">{card.regulationMark}</p></div>}
+              </div>
+              <div className="sm:border-l sm:border-gray-200 sm:pl-6 flex flex-col justify-center">
+                <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Preço Atual</span>
+                {currentPrice > 0 ? (
+                  <>
+                    <PriceDisplay value={currentPrice} currency={priceCurrency} showOriginal={true} size="md" className="mt-1" />
+                    <p className="mt-1 text-xs text-gray-500">{tcgplayerPrice ? 'TCGPlayer' : 'Cardmarket'}</p>
+                  </>
+                ) : (
+                  <p className="mt-1 text-gray-500 text-sm">Não disponível</p>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Current Price */}
-          <div className="pokemon-card p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Preço Atual</h2>
-            {currentPrice > 0 ? (
-              <div className="flex items-baseline space-x-2">
-                <span className="text-3xl font-bold text-gray-900">
-                  {priceCurrency === 'USD' ? '$' : '€'}{currentPrice.toFixed(2)}
-                </span>
-                <div className={`flex items-center space-x-1 ${
-                  priceChange > 0 ? 'price-trend-up' : 
-                  priceChange < 0 ? 'price-trend-down' : 'price-trend-stable'
-                }`}>
-                  {priceChange > 0 ? <TrendingUp className="h-4 w-4" /> :
-                   priceChange < 0 ? <TrendingDown className="h-4 w-4" /> :
-                   <Minus className="h-4 w-4" />}
-                  <span>
-                    {priceChange > 0 ? '+' : ''}{priceCurrency === 'USD' ? '$' : '€'}{priceChange.toFixed(2)} ({priceChangePercent}%)
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-500">Preço não disponível</p>
-            )}
-            <div className="mt-4 space-y-2">
-              <p className="text-sm text-gray-500">
-                <span className="font-medium">Fonte:</span> {tcgplayerPrice ? 'TCGPlayer' : cardmarketPrice ? 'Cardmarket' : 'N/A'}
-              </p>
-              {card.pricing?.tcgplayer?.updated && (
-                <p className="text-sm text-gray-500">
-                  <span className="font-medium">Última atualização:</span> {new Date(card.pricing.tcgplayer.updated).toLocaleDateString('pt-BR')}
-                </p>
-              )}
-              {card.pricing?.cardmarket?.updated && !tcgplayerPrice && (
-                <p className="text-sm text-gray-500">
-                  <span className="font-medium">Última atualização:</span> {new Date(card.pricing.cardmarket.updated).toLocaleDateString('pt-BR')}
-                </p>
-              )}
-            </div>
-            
-            {/* Preços adicionais do TCGdex */}
-            {card.pricing && (
-              <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-                {card.pricing.tcgplayer?.holofoil?.lowPrice && (
-                  <p className="text-gray-600">
-                    <span className="font-medium">Menor preço:</span> ${card.pricing.tcgplayer.holofoil.lowPrice}
-                  </p>
-                )}
-                {card.pricing.tcgplayer?.holofoil?.highPrice && (
-                  <p className="text-gray-600">
-                    <span className="font-medium">Maior preço:</span> ${card.pricing.tcgplayer.holofoil.highPrice}
-                  </p>
-                )}
-                {card.pricing.cardmarket?.low && (
-                  <p className="text-gray-600">
-                    <span className="font-medium">Menor preço:</span> €{card.pricing.cardmarket.low}
-                  </p>
-                )}
-                {card.pricing.cardmarket?.trend && (
-                  <p className="text-gray-600">
-                    <span className="font-medium">Tendência:</span> €{card.pricing.cardmarket.trend}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Actions */}
-          <div className="flex space-x-4">
-            <button className="btn-primary flex-1">
-              Adicionar aos Favoritos
-            </button>
-            <button className="btn-secondary flex-1">
-              Configurar Alerta
-            </button>
+          {/* Botões - mesma largura do card */}
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
+        {isInCollection(card.id) ? (
+          <button
+            onClick={() => removeCard(card.id)}
+            className="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg border border-red-500 text-red-600 hover:bg-red-50 text-sm"
+          >
+            <Heart className="h-4 w-4 fill-current" />
+            Remover da Coleção
+          </button>
+        ) : (
+          <button
+            onClick={() => addCard(card.id)}
+            className="btn-primary flex-1 flex items-center justify-center gap-2 py-2 text-sm"
+          >
+            <Heart className="h-4 w-4" />
+            Adicionar à Coleção
+          </button>
+        )}
+        <Link to="/collection" className="btn-secondary flex-1 text-center py-2 text-sm">
+          Ver Minha Coleção
+        </Link>
           </div>
         </div>
       </div>
 
-      {/* Attacks */}
+      {/* Ataques - largura total */}
       {card.attacks && card.attacks.length > 0 && (
-        <div className="pokemon-card p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Ataques</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {card.attacks.map((attack: any, index: number) => (
-              <div key={index} className="border rounded-lg p-4">
-                <h3 className="font-semibold text-lg">{attack.name}</h3>
-                <div className="mt-2 space-y-1 text-sm">
-                  <p><span className="font-medium">Custo:</span> {attack.cost?.join(' ') || 'N/A'}</p>
-                  <p><span className="font-medium">Dano:</span> {attack.damage || 'N/A'}</p>
-                  {attack.effect && (
-                    <p className="text-gray-600"><span className="font-medium">Efeito:</span> {attack.effect}</p>
-                  )}
-                </div>
+        <div className="pokemon-card p-4">
+          <h2 className="text-base font-semibold text-gray-900 mb-3">Ataques</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {card.attacks.map((attack: any, i: number) => (
+              <div key={i} className="border border-gray-200 rounded-lg p-3">
+                <h3 className="font-semibold text-sm">{attack.name}</h3>
+                <p className="text-xs text-gray-600 mt-1">
+                  Custo: {attack.cost?.join(' ') || 'N/A'} · Dano: {attack.damage || 'N/A'}
+                </p>
+                {attack.effect && <p className="text-xs text-gray-500 mt-1">{attack.effect}</p>}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Weaknesses and Resistances */}
-      {(card.weaknesses || card.resistances) && (
-        <div className="pokemon-card p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Fraquezas e Resistências</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {card.weaknesses && card.weaknesses.length > 0 && (
+      {/* Linha 4: Fraquezas e Resistências - largura total */}
+      {(card.weaknesses?.length || card.resistances?.length) ? (
+        <div className="pokemon-card p-4">
+          <h2 className="text-base font-semibold text-gray-900 mb-2">Fraquezas e Resistências</h2>
+          <div className="flex gap-8 text-sm">
+            {card.weaknesses?.length > 0 && (
               <div>
-                <h3 className="font-semibold text-red-600 mb-2">Fraquezas</h3>
-                {card.weaknesses.map((weakness: any, index: number) => (
-                  <p key={index} className="text-sm">
-                    {weakness.type}: {weakness.value}
-                  </p>
+                <h3 className="font-medium text-red-600 mb-1">Fraquezas</h3>
+                {card.weaknesses.map((w: any, i: number) => (
+                  <p key={i}>{w.type}: {w.value}</p>
                 ))}
               </div>
             )}
-            {card.resistances && card.resistances.length > 0 && (
+            {card.resistances?.length > 0 && (
               <div>
-                <h3 className="font-semibold text-green-600 mb-2">Resistências</h3>
-                {card.resistances.map((resistance: any, index: number) => (
-                  <p key={index} className="text-sm">
-                    {resistance.type}: {resistance.value}
-                  </p>
+                <h3 className="font-medium text-green-600 mb-1">Resistências</h3>
+                {card.resistances.map((r: any, i: number) => (
+                  <p key={i}>{r.type}: {r.value}</p>
                 ))}
               </div>
             )}
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   )
 }

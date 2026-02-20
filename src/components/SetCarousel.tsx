@@ -2,29 +2,37 @@ import Slider from 'react-slick'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTCGdexCardsBySet } from '@/hooks/useTCGdexCards'
+import PriceDisplay from '@/components/PriceDisplay'
 
 // Configurações do Slider
 const sliderSettings = {
   dots: true,
   infinite: true,
   speed: 500,
-  slidesToShow: 4,
-  slidesToScroll: 2,
+  slidesToShow: 6,
+  slidesToScroll: 3,
   autoplay: true,
   autoplaySpeed: 5000,
   pauseOnHover: true,
   responsive: [
     {
+      breakpoint: 1280,
+      settings: {
+        slidesToShow: 5,
+        slidesToScroll: 2,
+      }
+    },
+    {
       breakpoint: 1024,
       settings: {
-        slidesToShow: 3,
-        slidesToScroll: 1,
+        slidesToShow: 4,
+        slidesToScroll: 2,
       }
     },
     {
       breakpoint: 768,
       settings: {
-        slidesToShow: 2,
+        slidesToShow: 3,
         slidesToScroll: 1,
       }
     },
@@ -76,14 +84,14 @@ export default function SetCarousel({ setId, setName, limit = 12, borderColor = 
     return (
       <div className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">📦 {setName}</h2>
-          <p className="text-gray-600">Carregando cartas...</p>
+          <h2 className="text-lg font-semibold text-gray-900">{setName}</h2>
+          <p className="text-sm text-gray-500">Carregando cartas...</p>
         </div>
         <div className="flex space-x-2">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex-1">
-              <div className={`pokemon-card p-3 animate-pulse border-l-4 ${borderColor}`}>
-                <div className="aspect-[3/4] bg-gray-200 rounded-lg mb-2"></div>
+              <div key={i} className="flex-1">
+              <div className={`pokemon-card p-2 animate-pulse border-l-2 ${borderColor}`}>
+                <div className="aspect-[3/4] rounded-md mb-2 bg-gray-200"></div>
                 <div className="space-y-1">
                   <div className="h-3 bg-gray-200 rounded"></div>
                   <div className="h-2 bg-gray-200 rounded w-3/4"></div>
@@ -101,8 +109,8 @@ export default function SetCarousel({ setId, setName, limit = 12, borderColor = 
     return (
       <div className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">📦 {setName}</h2>
-          <p className="text-gray-600 text-sm text-red-600">
+          <h2 className="text-lg font-semibold text-gray-900">{setName}</h2>
+          <p className="text-sm text-red-600">
             ❌ Erro ao carregar cartas deste set
           </p>
         </div>
@@ -118,9 +126,9 @@ export default function SetCarousel({ setId, setName, limit = 12, borderColor = 
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">📦 {setName}</h2>
-        <p className="text-gray-600">{cards.length} cartas disponíveis</p>
+      <div className="flex items-baseline justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">{setName}</h2>
+        <span className="text-sm text-gray-500">{cards.length} cartas</span>
       </div>
       
       <div className="relative">
@@ -136,12 +144,12 @@ export default function SetCarousel({ setId, setName, limit = 12, borderColor = 
                 to={`/card/${card.id}`}
                 className="block p-1 group"
               >
-                <div className={`pokemon-card p-3 border-l-4 ${borderColor} h-full flex flex-col`}>
-                  <div className="aspect-[3/4] bg-gray-100 rounded-lg mb-2 overflow-hidden flex-shrink-0">
+                <div className={`pokemon-card p-2 border-l-2 ${borderColor} flex flex-col`}>
+                  <div className="aspect-[3/4] mb-2 overflow-hidden rounded-md bg-gray-100 flex-shrink-0">
                     <img
                       src={imageUrl}
                       alt={card.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      className="block w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
                         target.src = 'https://via.placeholder.com/300x400?text=Pokemon'
@@ -149,24 +157,24 @@ export default function SetCarousel({ setId, setName, limit = 12, borderColor = 
                     />
                   </div>
                   
-                  <div className="space-y-1 flex-grow flex flex-col">
-                    <h3 className="font-semibold text-gray-900 truncate text-sm">
+                  <div className="space-y-0.5 flex-grow flex flex-col">
+                    <h3 className="font-medium text-gray-900 truncate text-xs">
                       {card.name}
                     </h3>
                     
-                    <div className="text-xs text-gray-600">
+                    <div className="text-[11px] text-gray-500">
                       <p className="truncate">ID: {card.localId}</p>
                       {card.rarity && (
-                        <p className="font-medium text-purple-600 truncate">{card.rarity}</p>
+                        <p className="font-medium text-gray-600 truncate">{card.rarity}</p>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center justify-between text-[11px]">
                       {card.hp && (
                         <span className="text-red-500">❤️ {card.hp}</span>
                       )}
                       {card.types && card.types.length > 0 && (
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs truncate">
+                        <span className="rounded bg-gray-100 px-1 py-0.5 text-gray-600 truncate">
                           {card.types[0]}
                         </span>
                       )}
@@ -175,15 +183,11 @@ export default function SetCarousel({ setId, setName, limit = 12, borderColor = 
                     <div className="flex-grow"></div>
 
                     {/* Preços */}
-                    <div className="mt-auto pt-2 border-t border-gray-200">
+                    <div className="mt-auto pt-1.5 border-t border-gray-200">
                       {tcgPrice ? (
-                        <p className="text-sm font-semibold text-green-600">
-                          💵 ${tcgPrice.toFixed(2)} USD
-                        </p>
+                        <PriceDisplay value={tcgPrice} currency="USD" showOriginal={false} size="sm" />
                       ) : cardmarketPrice ? (
-                        <p className="text-sm font-semibold text-blue-600">
-                          💶 €{cardmarketPrice.toFixed(2)} EUR
-                        </p>
+                        <PriceDisplay value={cardmarketPrice} currency="EUR" showOriginal={false} size="sm" />
                       ) : (
                         <p className="text-xs text-gray-400">
                           Preço indisponível

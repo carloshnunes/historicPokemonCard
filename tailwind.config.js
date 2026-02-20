@@ -16,7 +16,7 @@ export default {
         }
       },
       fontFamily: {
-        'pokemon': ['Inter', 'sans-serif'],
+        'pokemon': ['DM Sans', 'system-ui', 'sans-serif'],
       }
     },
   },

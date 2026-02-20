@@ -3,6 +3,7 @@ import Header from './components/Header'
 import Home from './pages/Home'
 import CardSearch from './pages/CardSearch'
 import CardDetail from './pages/CardDetail'
+import Collection from './pages/Collection'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<CardSearch />} />
+          <Route path="/collection" element={<Collection />} />
           <Route path="/card/:id" element={<CardDetail />} />
         </Routes>
       </main>

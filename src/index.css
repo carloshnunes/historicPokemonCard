@@ -8,17 +8,18 @@
 
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'DM Sans', system-ui, sans-serif;
   }
 }
 
 @layer components {
   .pokemon-card {
-    @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200;
+    @apply bg-white rounded-lg border border-gray-200 shadow-sm;
+    @apply hover:shadow-md transition-shadow duration-200;
   }
   
   .pokemon-card-header {
-    @apply bg-gradient-to-r from-pokemon-red to-pokemon-blue text-white p-4 rounded-t-lg;
+    @apply bg-gradient-to-r from-pokemon-red to-pokemon-blue text-white p-4 rounded-t-xl;
   }
   
   .price-trend-up {
@@ -34,11 +35,11 @@
   }
   
   .btn-primary {
-    @apply bg-pokemon-blue hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200;
+    @apply bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
   }
   
   .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded transition-colors duration-200;
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
   }
 
   /* Slick carousel custom styles */
@@ -51,18 +52,14 @@
   }
   
   .slick-dots li.slick-active button:before {
-    @apply text-pokemon-blue;
+    @apply text-gray-700;
   }
   
   .slick-slide {
-    @apply px-2;
+    @apply px-1;
   }
   
   .slick-track {
-    @apply flex items-stretch;
-  }
-  
-  .slick-slide > div {
-    @apply h-full;
+    @apply flex items-start;
   }
 }
